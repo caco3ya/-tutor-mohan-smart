@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tutor Mohan - AI Clipart Brain</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui;background:#eef2f7}
+.header{max-width:1180px;margin:10px auto;background:linear-gradient(110deg,#0a1f5c,#1e3a8a);color:#fff;border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between}
+.logo{font-weight:900;font-size:22px}.t{text-transform:lowercase;opacity:.9}.m{color:#ff7a3d}
+.panel{max-width:1180px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px}
+.panel input,.panel textarea{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;margin-top:8px}
+.panel textarea{height:120px}
+.btn{padding:11px;background:#0a1f5c;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:8px;width:100%}.btn.o{background:#ff5500}
+.nav{max-width:1180px;margin:10px auto;display:flex;gap:8px}.tab{padding:8px 14px;border-radius:20px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:700;font-size:12px}.tab.on{background:#0a1f5c;color:#fff}
+.stageWrap{max-width:1180px;margin:12px auto;display:none}
+.stage{width:100%;aspect-ratio:16/9;background:#fff;border-radius:18px;overflow:hidden;display:flex;position:relative;border:1px solid #e2e8f0;box-shadow:0 20px 40px rgba(0,0,0,.15)}
+.slide{position:absolute;inset:0;display:none}.slide.active{display:flex}
+.left{flex:1.15;padding:26px;overflow:auto}.right{flex:.85;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;border-left:1px solid #eef2f0}
+.right img{max-width:90%;max-height:90%;object-fit:contain;border-radius:12px}
+.chip{background:#fff1e8;color:#ff5500;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}
+.qTitle{font-size:1.7vw;font-weight:800;color:#0a1f5c;margin-top:6px}
+.qBody{margin-top:8px;font-size:1.05vw;line-height:1.7;white-space:pre-wrap}
+.aiTag{background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:800;margin-left:6px}
+.ansBox{display:none;margin-top:10px;background:#fff7ed;border:1px dashed #ff9a57;padding:10px;border-radius:10px}.ansBox.show{display:block}
+.ctrl{display:flex;justify-content:space-between;margin-top:10px;background:#fff;padding:10px 14px;border-radius:12px;border:1px solid #e2e8f0}
+.dot{width:8px;height:8px;background:#cbd5e1;border-radius:50%;display:inline-block;margin:2px;cursor:pointer}.dot.on{background:#ff5500;width:22px}
+@media(max-width:700px){.qTitle{font-size:17px}.qBody{font-size:13px}.stage{aspect-ratio:auto;min-height:520px;flex-direction:column}.right{height:200px}}
+</style></head><body>
+<div class="header"><div class="logo"><span class="t">tutor</span> <span class="m">Mohan</span> • AI Clipart Brain</div><div style="font-size:11px">🍪+🌍+🌳 Auto Detect</div></div>
+
+<div class="nav">
+<button class="tab on" id="tab1" onclick="openTab(1)">Way 1: Drive Auto</button>
+<button class="tab" id="tab2" onclick="openTab(2)">Way 2: Upload PDF</button>
+<button class="tab" id="tab3" onclick="openTab(3)">Way 3: Smart Think + Clipart</button>
+</div>
+
+<div class="panel">
+<div id="way1"><input id="gdrive" value="https://drive.google.com/file/d/1KWjNSPsCol6b_DJzLeF36404XBdrUHXd/view?usp=drivesdk"><button class="btn" onclick="fromDrive()">Generate from Drive</button><p id="status1" style="font-size:12px;color:#64748b;margin-top:6px"></p></div>
+<div id="way2" style="display:none"><input type="file" id="pdfFile" accept="application/pdf"><p id="status2" style="font-size:12px;color:#64748b"></p></div>
+<div id="way3" style="display:none"><textarea id="smartInput" placeholder="Example: There are 12 cookies shared among 3 children. Find each share. Or: Find area of earth globe with radius 7cm"></textarea>
+<button class="btn" onclick="smartThink()">🧠 AI Think + Change Slightly + Auto Clipart</button>
+<div id="variations" style="margin-top:10px"></div>
+</div>
+</div>
+
+<div class="stageWrap" id="wrap"><div class="stage" id="stage"></div><div class="ctrl"><div id="dots"></div><div><button onclick="move(-1)" style="padding:7px 12px">←</button><button onclick="move(1)" style="padding:7px 12px;background:#0a1f5c;color:#fff;border:0;border-radius:8px;margin-left:6px">Next →</button></div></div></div>
+
+<script>
+const FILE_ID_DEFAULT="1KWjNSPsCol6b_DJzLeF36404XBdrUHXd";
+let cur=0, pdfDoc=null, loaded=0, allSlides=[];
+function openTab(n){[1,2,3].forEach(i=>{document.getElementById('way'+i).style.display=i==n?'block':'none'; document.getElementById('tab'+i).classList.toggle('on',i==n);});}
+
+// === BUILT-IN AI CLIPART BRAIN ===
+const CLIPART_BRAIN={
+ cookies:["https://cdn-icons-png.flaticon.com/512/2936/2936886.png","https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400"],
+ earth:["https://cdn-icons-png.flaticon.com/512/814/814513.png","https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400"],
+ tree:["https://cdn-icons-png.flaticon.com/512/740/740976.png","https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400"],
+ apple:["https://cdn-icons-png.flaticon.com/512/415/415682.png","https://images.unsplash.com/photo-1568702846914-96b305d2aa34?w=400"],
+ train:["https://cdn-icons-png.flaticon.com/512/3774/3774080.png","https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=400"],
+ circle:["https://upload.wikimedia.org/wikipedia/commons/a/a0/Circle_-_black_simple.svg","https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400"],
+ triangle:["https://upload.wikimedia.org/wikipedia/commons/8/84/Triangle_illustration.svg","https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400"],
+ garden:["https://cdn-icons-png.flaticon.com/512/1530/1530297.png","https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400"],
+ water:["https://cdn-icons-png.flaticon.com/512/3105/3105807.png","https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400"],
+ gate:["https://cdn-icons-png.flaticon.com/512/619/619032.png","https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400"],
+ default:["https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400"]
+};
+
+function aiDetectImage(text){
+  text=text.toLowerCase();
+  for(let key in CLIPART_BRAIN){
+    if(text.includes(key)) return CLIPART_BRAIN[key][0];
+  }
+  if(text.includes("fruit")||text.includes("mango")) return CLIPART_BRAIN.apple[0];
+  if(text.includes("speed")||text.includes("car")) return CLIPART_BRAIN.train[0];
+  if(text.includes("globe")||text.includes("planet")) return CLIPART_BRAIN.earth[0];
+  if(text.includes("flower")||text.includes("plant")) return CLIPART_BRAIN.tree[0];
+  if(text.includes("biscuit")) return CLIPART_BRAIN.cookies[0];
+  if(text.includes("field")||text.includes("fence")) return CLIPART_BRAIN.garden[0];
+  return CLIPART_BRAIN.default[0];
+}
+
+function smartThink(){
+  let txt=document.getElementById('smartInput').value.trim(); if(!txt) return alert('Paste question');
+  let img=aiDetectImage(txt);
+  let v1=txt;
+  let v2=txt.replace(/\d+/g, m=> parseInt(m)+2).replace(/Find/i,"Calculate").replace(/cookies/i,"biscuits");
+  let v3=txt.replace(/\d+/g, m=> parseInt(m)+1).replace(/children|students/i,"boys");
+  let variations=[v1,v2,v3];
+  let html=`<b>🧠 AI Detected:</b> <span style="background:#fff1e8;padding:3px 8px;border-radius:12px;font-size:12px">${Object.keys(CLIPART_BRAIN).find(k=>txt.toLowerCase().includes(k))||"maths"} → Clipart matched</span><br><br>`;
+  variations.forEach((v,i)=>{
+    let iv=aiDetectImage(v);
+    html+=`<div style="display:flex;gap:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-top:6px"><img src="${iv}" style="width:50px;height:50px;object-fit:contain"><div style="flex:1;font-size:13px"><span style="background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:12px;font-size:10px">V${i+1} Slightly Changed</span> ${v}</div><button onclick="addVar(${i})" style="padding:4px 8px;font-size:11px">Add</button></div>`;
+  });
+  document.getElementById('variations').innerHTML=html;
+  window._vars=variations;
+  build(variations.map(v=>({q:v, ans:"AI thinking variation", img:aiDetectImage(v)})));
+}
+function addVar(i){let cur=document.getElementById('smartInput').value; document.getElementById('smartInput').value=cur+"\n\n"+window._vars[i];}
+
+function driveId(u){let m=u.match(/\/d\/([A-Za-z0-9_-]+)/); return m?m[1]:u;}
+async function fromDrive(){let id=driveId(document.getElementById('gdrive').value)||FILE_ID_DEFAULT; let direct=`https://drive.google.com/uc?export=download&id=${id}`; let proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`; document.getElementById('status1').innerText='Fetching...'; try{let r=await fetch(proxy); let b=await r.arrayBuffer(); openPDF(b);}catch(e){document.getElementById('status1').innerText='Make Drive file public - Anyone with link';}}
+document.getElementById('pdfFile').addEventListener('change', async e=>{let b=await e.target.files[0].arrayBuffer(); openPDF(b);});
+
+async function openPDF(buf){
+ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ pdfDoc=await pdfjsLib.getDocument({data:buf, disableAutoFetch:true}).promise; loaded=0; allSlides=[];
+ let full=""; for(let i=1;i<=pdfDoc.numPages;i++){let pg=await pdfDoc.getPage(i); let tc=await pg.getTextContent(); full+=tc.items.map(x=>x.str).join(' ')+"\n\n"; pg.cleanup();}
+ let parts=full.split(/(?=Q\.?\s*\d+|^\d+\.\s|10\^\d+)/gmi); if(parts.length<2) parts=full.split(/\n\s*\n/);
+ let slides=parts.filter(p=>p.trim().length>20).map(p=>{
+   let txt=p.replace(/(\d+)\s*\^\s*(\d+)/g, "$1^{$2}"); txt=txt.replace(/10\^\{1\}.*?10\^\{2\}/g, m=> m.replace(/10\^\{2\}/, "\n\n10^{2}"));
+   let sp=txt.split(/ans:|solution:/i); return {q:sp[0].slice(0,700), ans:(sp[1]||"").slice(0,700), img:aiDetectImage(txt)};
+ });
+ build(slides);
+}
+
+function renderKatex(el, txt){try{el.innerHTML=txt.split('\n').map(l=>{if(l.includes('^{')){try{return katex.renderToString(l,{throwOnError:false});}catch{return l}}return l;}).join('<br>');}catch{el.innerText=txt;}}
+
+function build(slides){
+ let stage=document.getElementById('stage'), dots=document.getElementById('dots');
+ stage.innerHTML=""; dots.innerHTML=""; cur=0;
+ let cover=document.createElement('div'); cover.className='slide active'; cover.style.background='linear-gradient(110deg,#0a1f5c,#1e3a8a)'; cover.style.color='#fff'; cover.style.padding='36px'; cover.style.flexDirection='column'; cover.style.justifyContent='center';
+ cover.innerHTML=`<h1 style="font-size:3vw"><span style="text-transform:lowercase;opacity:.9">tutor</span> <span style="color:#ff7a3d">Mohan</span></h1><p>AI Clipart Brain • ${slides.length} Slides • Auto Detect: 🍪 🌍 🌳</p>`;
+ stage.appendChild(cover);
+ let d0=document.createElement('span'); d0.className='dot on'; d0.onclick=()=>jump(0); dots.appendChild(d0);
+ slides.forEach((s,i)=>{
+   let div=document.createElement('div'); div.className='slide';
+   div.innerHTML=`<div class="left"><span class="chip">Q ${i+1} <span class="aiTag">${s.img.includes('cookie')?'🍪 cookies':s.img.includes('814')?'🌍 earth':s.img.includes('740')?'🌳 tree':'📐 maths'} auto</span></span><div class="qTitle" id="qt${i}"></div><div class="qBody" id="qb${i}"></div>${s.ans?`<button onclick="document.getElementById('ans${i}').classList.toggle('show')" style="margin-top:8px;padding:6px 10px;background:#0a1f5c;color:#fff;border:0;border-radius:6px;font-size:11px">Show Answer</button><div class="ansBox" id="ans${i}"></div>`:''}</div><div class="right"><img src="${s.img||aiDetectImage(s.q)}" onerror="this.src='${CLIPART_BRAIN.default[0]}'"><div style="position:absolute;top:10px;right:10px;background:#0a1f5c;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">${i+1}/${slides.length}</div></div>`;
+   stage.appendChild(div);
+   let d=document.createElement('span'); d.className='dot'; d.onclick=()=>jump(i+1); dots.appendChild(d);
+   setTimeout(()=>{renderKatex(document.getElementById(`qt${i}`), s.q.split('.').slice(0,1).join('').slice(0,70)); renderKatex(document.getElementById(`qb${i}`), s.q); if(s.ans) renderKatex(document.getElementById(`ans${i}`), s.ans);},0);
+ });
+ document.getElementById('wrap').style.display='block';
+}
+function jump(n){let s=document.querySelectorAll('.slide'); let d=document.querySelectorAll('.dot'); s[cur].classList.remove('active'); d[cur].classList.remove('on'); cur=n; s[cur].classList.add('active'); d[cur].classList.add('on');}
+function move(dir){let t=document.querySelectorAll('.slide').length; let n=cur+dir; if(n<0)n=t-1; if(n>=t)n=0; jump(n);}
+</script>
+</body></html>
