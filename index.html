@@ -200,35 +200,47 @@ async function fromDrive(){
   let direct=`https://drive.google.com/uc?export=download&id=${id}`;
   let proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`;
   document.getElementById('status1').innerText='Fetching from Drive...';
-  try{let r=await fetch(proxy); let b=await r.arrayBuffer(); openPDF(b);}catch(e){document.getElementById('status1').innerText='Make file Public: Drive > Share > Anyone with link > Viewer';}
-}
-document.getElementById('pdfFile').addEventListener('change', async e=>{let b=await e.target.files[0].arrayBuffer(); openPDF(b);});
-
-async function openPDF(buf){
- pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
- pdfDoc=await pdfjsLib.getDocument({data:buf,disableAutoFetch:true}).promise;
- let full=""; for(let i=1;i<=pdfDoc.numPages;i++){let pg=await pdfDoc.getPage(i); let tc=await pg.getTextContent(); full+=tc.items.map(x=>x.str).join(' ')+"\n\n"; pg.cleanup();}
- let parts=full.split(/(?=Q\.?\s*\d+|^\d+\.\s|10\^\d+)/gmi); if(parts.length<2) parts=full.split(/\n\s*\n/);
- let slides=parts.filter(p=>p.trim().length>20).map(p=>{
-   let txt=p.replace(/(\d+)\s*\^\s*(\d+)/g,"$1^{$2}"); txt=txt.replace(/10\^\{1\}.*?10\^\{2\}/g,m=>m.replace(/10\^\{2\}/,"\n\n10^{2}"));
-   let sp=txt.split(/ans:|solution:/i); return {q:sp[0].slice(0,700),ans:(sp[1]||"").slice(0,700),img:aiDetectImage(txt)};
- });
- build(slides); document.getElementById('status1').innerText=`Loaded ${slides.length} slides - 10^1 and 10^2 separated - clipart auto`;
-}
-
-function renderKatex(el,txt){try{el.innerHTML=txt.split('\n').map(l=>{if(l.includes('^{')){try{return katex.renderToString(l,{throwOnError:false});}catch{return l}}return l;}).join('<br>');}catch{el.innerText=txt;}}
-
-function build(slides){
- let stage=document.getElementById('stage'),dots=document.getElementById('dots');
- stage.innerHTML=""; dots.innerHTML=""; cur=0;
- let cover=document.createElement('div'); cover.className='slide active'; cover.style.background='linear-gradient(110deg,#0a1f5c,#1e3a8a)'; cover.style.color='#fff'; cover.style.padding='36px'; cover.style.flexDirection='column'; cover.style.justifyContent='center';
- cover.innerHTML=`<div style="font-size:12px;letter-spacing:2px;opacity:.6">WELCOME TO</div><h1 style="font-size:3.2vw"><span style="text-transform:lowercase;opacity:.9">tutor</span> <span style="color:#ff7a3d">Mohan</span></h1><p style="margin-top:8px;opacity:.8">3-Way Smart • ${slides.length} Slides • AI Clipart Brain</p><p style="margin-top:6px;font-size:11px;opacity:.6">🍪 Cookies 🍎 Fruit 🌍 Earth 🌳 Tree 🚂 Train - Auto Detect</p>`;
- stage.appendChild(cover);
- let d0=document.createElement('span'); d0.className='dot on'; d0.onclick=()=>jump(0); dots.appendChild(d0);
- slides.forEach((s,i)=>{
-   let div=document.createElement('div'); div.className='slide';
-   div.innerHTML=`<div class="left"><span class="chip">Q ${i+1} <span class="aiTag">AI Clipart</span></span><div class="qTitle" id="qt${i}"></div><div class="qBody" id="qb${i}"></div>${s.ans?`<button onclick="document.getElementById('ans${i}').classList.toggle('show')" style="margin-top:8px;padding:6px 10px;background:#0a1f5c;color:#fff;border:0;border-radius:6px;font-size:11px">Show Answer</button><div class="ansBox" id="ans${i}"></div>`:''}<div style="margin-top:auto;font-size:10px;color:#94a3b8"><span style="color:#0a1f5c">tutor</span> <span style="color:#ff5500">Mohan</span></div></div><div class="right"><img src="${s.img}" onerror="this.src='${CLIPART.default}'"><div style="position:absolute;top:10px;right:10px;background:#0a1f5c;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">${i+1}/${slides.length}</div></div>`;
-   stage.appendChild(div);
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tutor Mohan - Premium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui;background:#eef2f7}
+.top{max-width:1150px;margin:12px auto;background:linear-gradient(100deg,#0a1f5c,#1e3a8a);color:#fff;padding:16px 20px;border-radius:16px;display:flex;justify-content:space-between}
+.top b{font-size:22px} .top b span{color:#ff7a3d}
+.card{max-width:1150px;margin:0 auto;background:#fff;border-radius:16px;padding:16px;border:1px solid #e2e8f0}
+.tabRow{display:flex;gap:8px;margin-bottom:12px}.tb{padding:10px 16px;border-radius:24px;border:1px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer}.tb.on{background:#0a1f5c;color:#fff}
+input,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;margin-top:8px}textarea{height:100px}
+.btn{width:100%;padding:13px;background:#0a1f5c;color:#fff;border:0;border-radius:12px;font-weight:800;margin-top:10px;cursor:pointer}.btn.o{background:#ff5500}
+.stageW{max-width:1150px;margin:14px auto;display:none}.stage{aspect-ratio:16/9;background:#fff;border-radius:18px;display:flex;overflow:hidden;border:1px solid #e2e8f0;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+.slide{position:absolute;inset:0;display:none}.slide.on{display:flex}
+.L{flex:1.2;padding:24px}.R{flex:.8;background:#f8fafc;display:flex;align-items:center;justify-content:center;border-left:1px solid #eef2f0;position:relative}
+.R img{max-width:85%;max-height:85%;object-fit:contain}
+.chip{background:#fff7ed;color:#ff5500;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}
+.q{font-size:18px;font-weight:800;color:#0a1f5c;margin-top:10px;line-height:1.5;white-space:pre-wrap}
+</style></head><body>
+<div class="top"><b><span style="text-transform:lowercase;opacity:.8">tutor</span> <span>Mohan</span></b><span>3-Way Premium • Auto Clipart</span></div>
+<div class="card">
+<div class="tabRow"><button class="tb on" onclick="tab(1)" id="t1">Way 1: Drive</button><button class="tb" onclick="tab(2)" id="t2">Way 2: Upload</button><button class="tb" onclick="tab(3)" id="t3">Way 3: Smart</button></div>
+<div id="w1"><input id="driveLink" value="https://drive.google.com/file/d/1KWjNSPsCol6b_DJzLeF36404XBdrUHXd/view"><button class="btn" onclick="loadDrive()">Generate from Drive</button><p style="font-size:11px;color:#64748b;margin-top:6px">Make Drive: Share > Anyone with link > Viewer</p></div>
+<div id="w2" style="display:none"><input type="file" id="pdfFile" accept="application/pdf"></div>
+<div id="w3" style="display:none"><textarea id="smart" placeholder="Type: There are 12 cookies among 3 children"></textarea><button class="btn o" onclick="think()">AI Think + Clipart</button><div id="vars"></div></div>
+</div>
+<div class="stageW" id="wrap"><div class="stage" id="stage"></div><div style="display:flex;justify-content:space-between;padding:10px"><div id="dots"></div><div><button onclick="go(-1)">Prev</button><button onclick="go(1)" style="background:#0a1f5c;color:#fff;border:0;padding:8px 14px;border-radius:8px;margin-left:6px">Next</button><button onclick="exportAll()" style="margin-left:6px;background:#ff5500;color:#fff;border:0;padding:8px 14px;border-radius:8px">Export All</button></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+let cur=0;
+function tab(n){[1,2,3].forEach(i=>{document.getElementById('w'+i).style.display=i==n?'block':'none';document.getElementById('t'+i).classList.toggle('on',i==n);});}
+const IMG={cookies:"https://cdn-icons-png.flaticon.com/512/2936/2936886.png",earth:"https://cdn-icons-png.flaticon.com/512/814/814513.png",tree:"https://cdn-icons-png.flaticon.com/512/740/740976.png",apple:"https://cdn-icons-png.flaticon.com/512/415/415682.png",gate:"https://cdn-icons-png.flaticon.com/512/619/619032.png",def:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=500"};
+function pickImg(t){t=t.toLowerCase();if(t.includes('cookie')||t.includes('biscuit'))return IMG.cookies;if(t.includes('earth')||t.includes('globe'))return IMG.earth;if(t.includes('tree')||t.includes('plant'))return IMG.tree;if(t.includes('apple')||t.includes('fruit'))return IMG.apple;if(t.includes('gate'))return IMG.gate;return IMG.def;}
+function think(){let txt=document.getElementById('smart').value;if(!txt)return alert('Type question');let img=pickImg(txt);let v1=txt,v2=txt.replace(/\d+/g,m=>+m+2).replace(/cookies/i,'biscuits'),v3=txt.replace(/\d+/g,m=>+m+1);window._v=[v1,v2,v3];document.getElementById('vars').innerHTML=`<div style="margin-top:8px"><img src="${img}" style="width:40px"> Detected: ${img==IMG.cookies?'Cookies':img==IMG.earth?'Earth':'Maths'}<br><br>${window._v.map((x,i)=>`<div style="border:1px solid #e2e8f0;padding:8px;border-radius:8px;margin-top:6px">V${i+1}: ${x}</div>`).join('')}<button class="btn" onclick="build(window._v.map(x=>({q:x,img:pickImg(x)})))">Generate PPT</button></div>`;}
+async function loadDrive(){let u=document.getElementById('driveLink').value;let m=u.match(/\/d\/([A-Za-z0-9_-]+)/);let id=m?m[1]:u;let direct=`https://drive.google.com/uc?export=download&id=${id}`;let proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`;let r=await fetch(proxy);let b=await r.arrayBuffer();openPDF(b);}
+document.getElementById('pdfFile').addEventListener('change',async e=>{let b=await e.target.files[0].arrayBuffer();openPDF(b);});
+async function openPDF(buf){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";let doc=await pdfjsLib.getDocument({data:buf}).promise;let full="";for(let i=1;i<=doc.numPages;i++){let p=await doc.getPage(i);let tc=await p.getTextContent();full+=tc.items.map(x=>x.str).join(' ')+"\n\n";}let parts=full.split(/(?=Q\.?\s*\d+|^\d+\.)/g);let slides=parts.filter(x=>x.trim().length>20).map(x=>({q:x.slice(0,600).replace(/10\^1.*10\^2/gi,m=>m.replace('10^2','\n\n10^2')),img:pickImg(x)}));build(slides);}
+function build(slides){let st=document.getElementById('stage'),dots=document.getElementById('dots');st.innerHTML="";dots.innerHTML="";cur=0;let c=document.createElement('div');c.className='slide on';c.style.background='linear-gradient(100deg,#0a1f5c,#1e3a8a)';c.style.color='#fff';c.style.flexDirection='column';c.style.justifyContent='center';c.style.padding='30px';c.innerHTML=`<h1><span style="text-transform:lowercase">tutor</span> <span style="color:#ff7a3d">Mohan</span></h1><p style="margin-top:8px">${slides.length} Slides • Auto Clipart</p>`;st.appendChild(c);let d0=document.createElement('span');d0.innerText='● ';d0.style.cursor='pointer';d0.onclick=()=>jump(0);dots.appendChild(d0);slides.forEach((s,i)=>{let d=document.createElement('div');d.className='slide';d.innerHTML=`<div class=L><span class=chip>Q ${i+1}</span><div class=q>${s.q}</div><div style="margin-top:20px;font-size:10px;color:#94a3b8">tutor Mohan</div></div><div class=R><img src="${s.img}"><div style="position:absolute;top:10px;right:10px;background:#0a1f5c;color:#fff;padding:4px 10px;border-radius:12px;font-size:11px">${i+1}/${slides.length}</div></div>`;st.appendChild(d);let dot=document.createElement('span');dot.innerText='○ ';dot.style.cursor='pointer';dot.onclick=()=>jump(i+1);dots.appendChild(dot);});document.getElementById('wrap').style.display='block';}
+function jump(n){let sl=document.querySelectorAll('.slide');sl[cur].classList.remove('on');cur=n;sl[cur].classList.add('on');}
+function go(d){let t=document.querySelectorAll('.slide').length;let n=cur+d;if(n<0)n=t-1;if(n>=t)n=0;jump(n);}
+function exportAll(){let t="";document.querySelectorAll('.slide').forEach((s,i)=>{if(i==0)return;t+=`\n--- SLIDE ${i} ---\n`+s.querySelector('.q').innerText+"\n";});let w=window.open();w.document.write(`<pre>${t}</pre>`);}
+</script></body></html>
+iv);
    let d=document.createElement('span'); d.className='dot'; d.onclick=()=>jump(i+1); dots.appendChild(d);
    setTimeout(()=>{renderKatex(document.getElementById(`qt${i}`),s.q.split('.').slice(0,1).join('').slice(0,70)); renderKatex(document.getElementById(`qb${i}`),s.q); if(s.ans) renderKatex(document.getElementById(`ans${i}`),s.ans);},0);
  });
