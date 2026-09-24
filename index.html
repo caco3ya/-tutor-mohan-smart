@@ -270,6 +270,64 @@ async function freeAIThink(){
   try{
     let res=await fetch(`https://text.pollinations.ai/${prompt}?model=openai`);
     let text=await res.text();let j=text.match(/\{[\s\S]*\}/);let data=JSON.parse(j[0]);
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tutor Mohan - Type 3 Free AI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui;background:#eef2f7}
+.top{max-width:900px;margin:12px auto;background:linear-gradient(100deg,#0a1f5c,#1e3a8a);color:#fff;padding:16px 20px;border-radius:16px;display:flex;justify-content:space-between}
+.box{max-width:900px;margin:0 auto;background:#fff;padding:18px;border-radius:16px;border:1px solid #e2e8f0}
+.tab{display:flex;gap:8px;margin-bottom:12px}.tb{padding:9px 14px;border-radius:20px;border:1px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer}.tb.on{background:#0a1f5c;color:#fff}
+input,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin-top:8px}textarea{height:100px}
+.btn{width:100%;padding:13px;background:#0a1f5c;color:#fff;border:0;border-radius:12px;font-weight:800;margin-top:10px;cursor:pointer}.btn.o{background:#ff5500}
+.log{margin-top:10px;background:#f1f5f9;padding:10px;border-radius:10px;font-size:12px;white-space:pre-wrap}
+</style></head><body>
+<div class="top"><b><span style="text-transform:lowercase;opacity:.8">tutor</span> <span style="color:#ff7a3d">Mohan</span> • Type 3</b><span style="font-size:11px">Free AI • No Key • Full PPTX</span></div>
+<div class="box">
+<div class="tab"><button class="tb on" id="t1" onclick="openT(1)">Way 1: Upload PDF → PPT</button><button class="tb" id="t2" onclick="openT(2)">Way 2: Smart AI → PPT</button></div>
+
+<div id="w1">
+<input type="file" id="pdfFile" accept=".pdf,.txt">
+<input id="driveId" value="https://drive.google.com/file/d/1KWjNSPsCol6b_DJzLeF36404XBdrUHXd/view">
+<button class="btn" onclick="makeFromUpload()">📥 Download Full PPTX from Upload</button>
+<button class="btn o" onclick="makeFromDrive()">📥 Download from Drive (Your ID Baked)</button>
+</div>
+
+<div id="w2" style="display:none">
+<textarea id="smart" placeholder="Type: There are 12 cookies among 3 children. 10^1 and 10^2"></textarea>
+<button class="btn o" onclick="freeAIThink()">🧠 Free AI Think (No Key) + Download PPT</button>
+<div id="aiOut"></div>
+</div>
+
+<div class="log" id="log">Type 3 Ready: Free AI + Real PPTX + Auto Clipart 🍪🌍🌳 | Drive ID: 1KWjNSPsCol6b_DJzLeF36404XBdrUHXd baked inside</div>
+</div>
+
+<script>
+function openT(n){document.getElementById('w1').style.display=n==1?'block':'none';document.getElementById('w2').style.display=n==2?'block':'none';document.getElementById('t1').classList.toggle('on',n==1);document.getElementById('t2').classList.toggle('on',n==2);}
+const IMG={cookies:"https://cdn-icons-png.flaticon.com/512/2936/2936886.png",earth:"https://cdn-icons-png.flaticon.com/512/814/814513.png",tree:"https://cdn-icons-png.flaticon.com/512/740/740976.png",apple:"https://cdn-icons-png.flaticon.com/512/415/415682.png",def:"https://cdn-icons-png.flaticon.com/512/706/706525.png"};
+function pickImg(t){t=t.toLowerCase();if(t.includes('cookie')||t.includes('biscuit'))return IMG.cookies;if(t.includes('earth'))return IMG.earth;if(t.includes('tree'))return IMG.tree;if(t.includes('apple'))return IMG.apple;return IMG.def;}
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+let fullText="";
+document.getElementById('pdfFile').addEventListener('change', async e=>{
+  let f=e.target.files[0]; let buf=await f.arrayBuffer();
+  if(f.name.endsWith('.pdf')){let doc=await pdfjsLib.getDocument({data:buf}).promise;let txt="";for(let i=1;i<=doc.numPages;i++){let p=await doc.getPage(i);let c=await p.getTextContent();txt+=c.items.map(x=>x.str).join(' ')+"\n\n";}fullText=txt;}
+  else{fullText=new TextDecoder().decode(buf);}
+  document.getElementById('log').innerText="Loaded "+fullText.length+" chars. Ready.";
+});
+async function makeFromDrive(){
+  let link=document.getElementById('driveId').value;let m=link.match(/\/d\/([A-Za-z0-9_-]+)/);let id=m?m[1]:"1KWjNSPsCol6b_DJzLeF36404XBdrUHXd";
+  document.getElementById('log').innerText="Fetching Drive "+id+"...";
+  try{let direct=`https://drive.google.com/uc?export=download&id=${id}`;let proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`;let r=await fetch(proxy);let b=await r.arrayBuffer();let doc=await pdfjsLib.getDocument({data:b}).promise;let txt="";for(let i=1;i<=doc.numPages;i++){let p=await doc.getPage(i);let c=await p.getTextContent();txt+=c.items.map(x=>x.str).join(' ')+"\n\n";}fullText=txt;makePPTFromText(fullText);}catch(e){document.getElementById('log').innerText="Make Drive Public: Share > Anyone with link";}
+}
+function makeFromUpload(){ if(!fullText) return alert('Upload PDF first'); makePPTFromText(fullText); }
+async function freeAIThink(){
+  let q=document.getElementById('smart').value.trim(); if(!q)return alert('Type question');
+  document.getElementById('aiOut').innerHTML="🧠 Free AI thinking...";
+  let prompt=encodeURIComponent(`Return JSON only {"clipart":"cookies","v2":"rewrite with +2 numbers","v3":"rewrite with +1 numbers"} for question: "${q}". clipart one of cookies, earth, tree, apple`);
+  try{
+    let res=await fetch(`https://text.pollinations.ai/${prompt}?model=openai`);
+    let text=await res.text();let j=text.match(/\{[\s\S]*\}/);let data=JSON.parse(j[0]);
     let vars=[q,data.v2,data.v3];
     document.getElementById('aiOut').innerHTML=`V1: ${vars[0]}<br>V2: ${vars[1]}<br>V3: ${vars[2]}<br><b>Clipart: ${data.clipart}</b>`;
     makePPTFromText(vars.join("\n\n---NEXT---\n\n"));
@@ -289,11 +347,7 @@ async function makePPTFromText(text){
   document.getElementById('log').innerText=`✅ Downloaded Tutor-Mohan-Type3-Free-AI-PPT.pptx (${final.length+1} slides)`;
 }
 </script></body></html>
-dding:8px;border-radius:8px;margin-top:6px">V${i+1}: ${x}</div>`).join('')}<button class="btn" onclick="build(window._v.map(x=>({q:x,img:pickImg(x)})))">Generate PPT</button></div>`;}
-async function loadDrive(){let u=document.getElementById('driveLink').value;let m=u.match(/\/d\/([A-Za-z0-9_-]+)/);let id=m?m[1]:u;let direct=`https://drive.google.com/uc?export=download&id=${id}`;let proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`;let r=await fetch(proxy);let b=await r.arrayBuffer();openPDF(b);}
-document.getElementById('pdfFile').addEventListener('change',async e=>{let b=await e.target.files[0].arrayBuffer();openPDF(b);});
-async function openPDF(buf){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";let doc=await pdfjsLib.getDocument({data:buf}).promise;let full="";for(let i=1;i<=doc.numPages;i++){let p=await doc.getPage(i);let tc=await p.getTextContent();full+=tc.items.map(x=>x.str).join(' ')+"\n\n";}let parts=full.split(/(?=Q\.?\s*\d+|^\d+\.)/g);let slides=parts.filter(x=>x.trim().length>20).map(x=>({q:x.slice(0,600).replace(/10\^1.*10\^2/gi,m=>m.replace('10^2','\n\n10^2')),img:pickImg(x)}));build(slides);}
-function build(slides){let st=document.getElementById('stage'),dots=document.getElementById('dots');st.innerHTML="";dots.innerHTML="";cur=0;let c=document.createElement('div');c.className='slide on';c.style.background='linear-gradient(100deg,#0a1f5c,#1e3a8a)';c.style.color='#fff';c.style.flexDirection='column';c.style.justifyContent='center';c.style.padding='30px';c.innerHTML=`<h1><span style="text-transform:lowercase">tutor</span> <span style="color:#ff7a3d">Mohan</span></h1><p style="margin-top:8px">${slides.length} Slides • Auto Clipart</p>`;st.appendChild(c);let d0=document.createElement('span');d0.innerText='● ';d0.style.cursor='pointer';d0.onclick=()=>jump(0);dots.appendChild(d0);slides.forEach((s,i)=>{let d=document.createElement('div');d.className='slide';d.innerHTML=`<div class=L><span class=chip>Q ${i+1}</span><div class=q>${s.q}</div><div style="margin-top:20px;font-size:10px;color:#94a3b8">tutor Mohan</div></div><div class=R><img src="${s.img}"><div style="position:absolute;top:10px;right:10px;background:#0a1f5c;color:#fff;padding:4px 10px;border-radius:12px;font-size:11px">${i+1}/${slides.length}</div></div>`;st.appendChild(d);let dot=document.createElement('span');dot.innerText='○ ';dot.style.cursor='pointer';dot.onclick=()=>jump(i+1);dots.appendChild(dot);});document.getElementById('wrap').style.display='block';}
+=>jump(0);dots.appendChild(d0);slides.forEach((s,i)=>{let d=document.createElement('div');d.className='slide';d.innerHTML=`<div class=L><span class=chip>Q ${i+1}</span><div class=q>${s.q}</div><div style="margin-top:20px;font-size:10px;color:#94a3b8">tutor Mohan</div></div><div class=R><img src="${s.img}"><div style="position:absolute;top:10px;right:10px;background:#0a1f5c;color:#fff;padding:4px 10px;border-radius:12px;font-size:11px">${i+1}/${slides.length}</div></div>`;st.appendChild(d);let dot=document.createElement('span');dot.innerText='○ ';dot.style.cursor='pointer';dot.onclick=()=>jump(i+1);dots.appendChild(dot);});document.getElementById('wrap').style.display='block';}
 function jump(n){let sl=document.querySelectorAll('.slide');sl[cur].classList.remove('on');cur=n;sl[cur].classList.add('on');}
 function go(d){let t=document.querySelectorAll('.slide').length;let n=cur+d;if(n<0)n=t-1;if(n>=t)n=0;jump(n);}
 function exportAll(){let t="";document.querySelectorAll('.slide').forEach((s,i)=>{if(i==0)return;t+=`\n--- SLIDE ${i} ---\n`+s.querySelector('.q').innerText+"\n";});let w=window.open();w.document.write(`<pre>${t}</pre>`);}
